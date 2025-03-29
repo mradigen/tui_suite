@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM docker:dind
 
 RUN apk add --no-cache openssh docker-cli
 
