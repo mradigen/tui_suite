@@ -14,4 +14,6 @@ RUN ln -sf /home/tui_suite/sshd_config.conf /etc/ssh/sshd_config
 
 EXPOSE 22
 
+VOLUME [ "/var/lib/docker", "/etc/ssh" ]
+
 ENTRYPOINT [ "/home/tui_suite/setup.sh" ]
