@@ -1,6 +1,12 @@
 #!/bin/sh
 set -e
 
+##########
+## SSHD ##
+##########
+/usr/sbin/sshd -D &
+SSHD_PID=$!
+
 ###################
 ## Docker Daemon ##
 ###################
@@ -51,8 +57,8 @@ addgroup tui_suite
 #For Debian
 # groupadd tui_suite
 
-for APPLICATION in ${APPLICATIONS}
-do
+launch() {
+	APPLICATION="${1}"
 	# Kill and remove existing running containers
 	docker kill "${APPLICATION}" || true
 	docker rm "${APPLICATION}" || true
@@ -74,14 +80,16 @@ do
 	docker run -d \
 		--name "${APPLICATION}" \
 		--read-only \
-		-v /home/tui_suite/.runtimefs/tmp:/tmp:rw \
-		-v /home/tui_suite/.runtimefs/root:/root:rw \
+		-v /home/tui_suite/.runtimefs/root:/root \
+		--tmpfs /tmp:rw,size=10m \
 		--rm \
 		"${APPLICATION}" tail -f /dev/null # tail -f to just keep it alive
-done
+}
 
-/usr/sbin/sshd -D &
-SSHD_PID=$!
+for APPLICATION in ${APPLICATIONS}
+do
+	launch "${APPLICATION}"
+done
 
 echo "All containers running"
 
